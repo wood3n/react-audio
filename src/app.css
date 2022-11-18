@@ -1,0 +1,17 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+html {
+  color: #fff;
+}
+
+a {
+  color: #fff;
+  cursor: pointer;
+}
+
+a:hover {
+  color: #1db954;
+}

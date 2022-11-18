@@ -1,0 +1,84 @@
+.playtray {
+  padding: 12px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  background: #000;
+
+  .playtray-left {
+    flex: 1 1 25%;
+    display: flex;
+    align-items: center;
+    column-gap: 12px;
+
+    .song-cover {
+      img {
+        width: 48px;
+        height: 48px;
+        vertical-align: middle;
+      }
+    }
+
+    .song-info {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      row-gap: 8px;
+
+      .song-name {
+        font-size: 16px;
+      }
+
+      .arts {
+        font-size: 12px;
+        color: #f0f0f0;
+      }
+    }
+
+    .song-action {
+      margin-left: 12px;
+      display: flex;
+      align-items: center;
+      column-gap: 12px;
+    }
+  }
+
+  .playtray-center {
+    flex: 1 1 50%;
+
+    .play-action {
+      position: relative;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      column-gap: 24px;
+      margin-bottom: 8px;
+    }
+
+    .play-progress {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      column-gap: 12px;
+
+      .play-current-time,
+      .play-total-time {
+        color: #fff;
+      }
+
+      .ant-slider > .ant-slider-rail {
+        background: #f0f0f0;
+      }
+    }
+  }
+
+  .playtray-right {
+    padding-right: 24px;
+    flex: 1 1 25%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    column-gap: 16px;
+  }
+}

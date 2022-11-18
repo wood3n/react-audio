@@ -1,0 +1,62 @@
+{
+  "name": "react-audio",
+  "private": true,
+  "version": "1.0.0",
+  "license": "MIT",
+  "author": "wood3n",
+  "homepage": "https://github.com/wood3n/react-audio#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wood3n/react-audio.git"
+  },
+  "bugs": {
+    "url": "https://github.com/wood3n/react-audio/issues"
+  },
+  "keywords": [
+    "html5 audio",
+    "audio",
+    "react",
+    "react-component",
+    "vite",
+    "typescript"
+  ],
+  "type": "module",
+  "main": "./dist/index.umd.cjs",
+  "module": "./dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.umd.cjs"
+    }
+  },
+  "scripts": {
+    "start": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "antd": "^5.0.0",
+    "howler": "^2.2.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-icons": "^4.6.0",
+    "wavesurfer.js": "^6.4.0"
+  },
+  "devDependencies": {
+    "@svgr/rollup": "^6.5.1",
+    "@types/howler": "^2.2.7",
+    "@types/node": "^18.11.9",
+    "@types/react": "^18.0.24",
+    "@types/react-dom": "^18.0.8",
+    "@vitejs/plugin-react": "^2.2.0",
+    "eslint-plugin-oxygen": "^1.0.5",
+    "less": "^4.1.3",
+    "stylelint": "^14.15.0",
+    "stylelint-config-standard": "^29.0.0",
+    "typescript": "^4.6.4",
+    "vite": "^3.2.3"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  }
+}
