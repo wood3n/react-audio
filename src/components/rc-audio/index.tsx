@@ -1,34 +1,53 @@
 import { useEffect, useState, useRef } from 'react';
 import { Howl, Howler } from 'howler';
-import { Drawer } from 'antd';
+import { Drawer, List, Image } from 'antd';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { EffectCoverflow, Pagination } from 'swiper';
 import 'swiper/css';
 import 'swiper/css/effect-coverflow';
 import PlayTray from './playtray';
 import { presets } from '@/constants';
+import { Song } from './types';
 import './index.less';
 
 const RCAudio = () => {
   const [list, setList] = useState(presets);
+  const [song, setSong] = useState<Song>();
   const [openList, setOpenList] = useState(false);
-  const howlerRef = useRef<Howl>();
 
-  useEffect(() => {
-    howlerRef.current = new Howl({
-      src: list.map(({ src }) => src),
-      html5: true,
-      preload: 'metadata',
-      xhr: {
-        withCredentials: true
-      }
-    });
-  }, []);
+  const handlePlay = (id?: number) => {
+    setSong(id ? list.find(item => item.id === id) : list[0]);
+  };
+
+  const handlePrev = () => {
+    const currentIndex = list.findIndex(s => s === song);
+    setSong(list[Math.max(0, currentIndex - 1)]);
+  };
+
+  const handleNext = () => {
+    const currentIndex = list.findIndex(s => s === song);
+    setSong(list[Math.min(list.length, currentIndex + 1)]);
+  };
 
   return (
     <div className='rc-audio-container'>
       <div className='rc-audio-playlist'>
-        <Swiper
+        <List
+          itemLayout='horizontal'
+          dataSource={list}
+          renderItem={(item) => (
+            <List.Item
+              actions={[<a key='play' onClick={() => handlePlay(item.id)}>播放</a>]}
+            >
+              <List.Item.Meta
+                avatar={<Image preview={false} width={40} height={40} src={item.pic} />}
+                title={item.name}
+                description={item.arts}
+              />
+            </List.Item>
+          )}
+        />
+        {/* <Swiper
           effect={'coverflow'}
           grabCursor={true}
           centeredSlides={true}
@@ -53,13 +72,14 @@ const RCAudio = () => {
               </div>
             </SwiperSlide>
           ))}
-        </Swiper>
+        </Swiper> */}
       </div>
       <div className='rc-audio-playtray'>
         <PlayTray
-          onPlay={() => howlerRef.current?.play?.()}
-          onPause={() => howlerRef.current?.pause?.()}
-          openPlayList={() => setOpenList(true)}
+          song={song}
+          onPlay={handlePlay}
+          onPrev={handlePrev}
+          onNext={handleNext}
         />
       </div>
     </div>

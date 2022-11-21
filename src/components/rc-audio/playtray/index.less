@@ -4,6 +4,15 @@
   align-items: center;
   background: #000;
 
+  a {
+    color: #fff;
+    cursor: pointer;
+  }
+
+  a:hover {
+    color: #00b96b;
+  }
+
   .playtray-left {
     flex: 1 1 25%;
     display: flex;
@@ -24,13 +33,16 @@
       flex-direction: column;
       row-gap: 8px;
 
+      div {
+        color: #f0f0f0;
+      }
+
       .song-name {
         font-size: 16px;
       }
 
       .arts {
         font-size: 12px;
-        color: #f0f0f0;
       }
     }
 
