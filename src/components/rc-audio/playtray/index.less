@@ -13,6 +13,14 @@
     color: #00b96b;
   }
 
+  .ant-slider > .ant-slider-rail {
+    background: #f0f0f0;
+  }
+
+  .ant-slider > .ant-slider-track {
+    background: #1db954;
+  }
+
   .playtray-left {
     flex: 1 1 25%;
     display: flex;
@@ -70,20 +78,16 @@
     .play-progress {
       width: 100%;
       display: flex;
+      justify-content: center;
       align-items: center;
       column-gap: 12px;
 
       .play-current-time,
       .play-total-time {
+        flex: 0 0 65px;
+        width: 65px;
         color: #fff;
-      }
-
-      .ant-slider > .ant-slider-rail {
-        background: #f0f0f0;
-      }
-
-      .ant-slider > .ant-slider-track {
-        background: #1db954;
+        text-align: center;
       }
     }
   }
@@ -95,5 +99,16 @@
     justify-content: flex-end;
     align-items: center;
     column-gap: 16px;
+
+    .play-volume {
+      display: flex;
+      align-items: center;
+    }
+
+    .play-volume-toggle-mute {
+      flex: 0 0 25px;
+      display: flex;
+      align-items: center;
+    }
   }
 }

@@ -13,7 +13,6 @@ import './index.less';
 const RCAudio = () => {
   const [list, setList] = useState(presets);
   const [song, setSong] = useState<Song>();
-  const [openList, setOpenList] = useState(false);
 
   const handlePlay = (id?: number) => {
     setSong(id ? list.find(item => item.id === id) : list[0]);

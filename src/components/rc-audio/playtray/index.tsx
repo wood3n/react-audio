@@ -21,8 +21,7 @@ import {
 } from 'react-icons/md';
 import { Howl, Howler } from 'howler';
 import dayjs from 'dayjs';
-import fallback from '@/assets/images/fallback.png';
-import { playbackTates } from '@/constants';
+import { playbackRates, EMPTY_IMG } from '@/constants';
 import { Song } from '../types';
 import './index.less';
 
@@ -41,96 +40,108 @@ const PlayTray: React.FC<Props> = ({
 }) => {
   const [rate, setRate] = useState(1);
   const [volume, setVolume] = useState(0.2);
-  const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(false);
+  const [buffer, setBuffer] = useState(0);
   const [current, setCurrent] = useState(0);
   const [duration, setDuration] = useState(0);
   const [paused, setPaused] = useState(true);
-  const audioIdRef = useRef<number>();
-  const howlerRef = useRef<Howl | null>(null);
+  const audioElRef = useRef<HTMLAudioElement>(new Audio());
 
   useEffect(() => {
-    howlerRef.current?.unload?.();
-
     if (song?.src) {
-      howlerRef.current = new Howl({
-        src: song.src,
-        html5: true,
-        volume,
-        preload: 'metadata',
-        xhr: {
-          withCredentials: true
-        }
-      });
+      audioElRef.current.src = song.src;
+      audioElRef.current.controls = false;
+      audioElRef.current.volume = volume;
+      audioElRef.current.preload = 'metadata';
+      audioElRef.current.crossOrigin = 'use-credentials';
 
-      howlerRef.current.once('load', function(id: number){
-        audioIdRef.current = howlerRef.current?.play();
-        const dur = howlerRef.current?.duration(id);
-        if (dur) {
-          setCurrent(0);
-          setDuration(dur);
-        }
+      audioElRef.current.onloadedmetadata = () => {
+        setDuration(Math.floor(audioElRef.current.duration));
+      };
+
+      // audioElRef.current.onprogress = () => {
+      //   const duration = audioElRef.current.duration;
+      //   if (duration > 0) {
+      //     for (let i = 0; i < audioElRef.current.buffered.length; i++) {
+      //       if (
+      //         audio.buffered.start(audio.buffered.length - 1 - i) <
+      //         audio.currentTime
+      //       ) {
+      //         document.getElementById('buffered-amount').style.width = `${
+      //           (audio.buffered.end(audio.buffered.length - 1 - i) * 100) / duration
+      //         }%`;
+      //         break;
+      //       }
+      //     }
+      //   }
+      // };
+
+      audioElRef.current.ontimeupdate = () => {
+        setCurrent(Math.floor(audioElRef.current.currentTime));
+      };
+
+      audioElRef.current.onplay = () => {
         setPaused(false);
-      });
+      };
 
-      howlerRef.current.on('play', function handlePlaying(){
-        if (howlerRef.current?.playing()){
-          setCurrent(current => current + 1);
-          setTimeout(handlePlaying, 1000); //adjust timeout to fit your needs
-        }
-      });
+      audioElRef.current.onpause = () => {
+        setPaused(true);
+      };
 
-      howlerRef.current.on('end', function handlePlaying(){
-        onNext();
-      });
-
-      howlerRef.current.once('loaderror', function(){
-        console.log('loaderror');
-        message.error('加载错误');
-        setPaused(() => true);
-      });
+      audioElRef.current.oncanplay = () => {
+        audioElRef.current.play();
+      };
     }
 
     return () => {
-      howlerRef.current?.unload();
-      howlerRef.current = null;
+      // https://html.spec.whatwg.org/multipage/media.html#best-practices-for-authors-using-media-elements
+      audioElRef.current.src = '';
     };
   }, [song?.src]);
 
+  /**
+   * 开始播放
+   * 1. 当前播放歌曲被暂停
+   * 2. 当前无播放歌曲，选择播放队列中第一首歌曲播放
+   */
   const handlePlay = () => {
-    setPaused(false);
-    if (audioIdRef.current) {
-      howlerRef.current?.play(audioIdRef.current);
+    if (song?.src && audioElRef.current) {
+      audioElRef.current.play();
     } else {
       onPlay();
     }
   };
 
   const handlePause = () => {
+    audioElRef.current.pause();
     setPaused(true);
-    howlerRef.current?.pause(audioIdRef.current);
   };
 
   const handleSeek = (value: number) => {
     setCurrent(value);
-    howlerRef.current?.seek(value);
+    audioElRef.current.currentTime = value;
   };
 
   const handleChangeVolume = (v: number) => {
     setVolume(v);
-    howlerRef.current?.volume(v);
+    audioElRef.current.volume = v;
   };
 
   const handleChangeRate = (v: number) => {
     setRate(v);
-    howlerRef.current?.rate(v);
+    audioElRef.current.playbackRate = v;
+  };
+
+  const toggleMuted = () => {
+    audioElRef.current.muted = !muted;
+    setMuted(!muted);
   };
 
   return (
     <div className='playtray'>
       <div className='playtray-left'>
         <div className='song-cover'>
-          <img src={song?.pic || fallback} />
+          <img src={song?.pic || EMPTY_IMG} />
         </div>
         <div className='song-info'>
           <div className='song-name'>{song?.name}</div>
@@ -160,14 +171,15 @@ const PlayTray: React.FC<Props> = ({
         <div className='play-progress'>
           <span className='play-current-time'>{dayjs.duration(current, 'seconds').format('mm:ss')}</span>
           <Slider
-            defaultValue={0}
             min={0}
             max={duration}
             step={1}
-            value={current}
-            onChange={handleSeek}
+            value={[current, 20]}
+            // onChange={handleSeek}
             tooltip={{ formatter: v => dayjs.duration(v!, 'seconds').format('mm:ss') }}
-            style={{ width: '100%' }}
+            style={{ flex: 1 }}
+            range
+            trackStyle={[{ backgroundColor: '#a4e9c5' }, { backgroundColor: 'green' }]}
           />
           <span className='play-total-time'>
             {duration ? dayjs.duration(duration, 'seconds').format('mm:ss') : '00:00'}
@@ -175,23 +187,29 @@ const PlayTray: React.FC<Props> = ({
         </div>
       </div>
       <div className='playtray-right'>
+        <span className='play-volume'>
+          <a className='play-volume-toggle-mute' onClick={toggleMuted}>
+            {muted ?
+              <MdVolumeOff size={24} /> :
+              volume === 0 ?
+                <MdVolumeMute size={24} /> :
+                volume < 0.5 ?
+                  <MdVolumeDown size={24} /> :
+                  <MdVolumeUp size={24} />
+            }
+          </a>
+          <Slider
+            defaultValue={40}
+            min={0}
+            max={1}
+            step={0.01}
+            value={volume}
+            onChange={handleChangeVolume}
+            tooltip={{ open: false }}
+            style={{ width: 160 }}
+          />
+        </span>
         <a className='play-mode'><MdRepeatOne size={24}/></a>
-        <a className='play-volume'>
-          <Popover content={(
-            <Slider
-              defaultValue={40}
-              min={0.1}
-              max={1}
-              step={0.01}
-              value={volume}
-              onChange={handleChangeVolume}
-              tooltip={{ open: false }}
-              style={{ width: 160 }}
-            />
-          )}>
-            <MdVolumeUp size={18}/>
-          </Popover>
-        </a>
         <a className='play-rate'>
           <Popover content={(
             <Slider
