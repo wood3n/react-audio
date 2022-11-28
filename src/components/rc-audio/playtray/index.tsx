@@ -1,25 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Slider, Dropdown, Tooltip, Popover, message } from 'antd';
-import { SliderMarks } from 'antd/es/slider';
 import {
   MdPlayCircleFilled,
   MdPauseCircleFilled,
   MdSkipPrevious,
   MdSkipNext,
   MdRepeatOne,
-  MdRepeat,
-  MdShuffle,
   MdExpand,
   MdVolumeMute,
   MdVolumeDown,
   MdVolumeUp,
   MdVolumeOff,
-  MdListAlt,
   MdAddCircleOutline,
   MdOutlineFavoriteBorder,
-  MdOutlineFavorite
 } from 'react-icons/md';
-import { Howl, Howler } from 'howler';
 import dayjs from 'dayjs';
 import { playbackRates, EMPTY_IMG } from '@/constants';
 import { Song } from '../types';
@@ -41,7 +35,6 @@ const PlayTray: React.FC<Props> = ({
   const [rate, setRate] = useState(1);
   const [volume, setVolume] = useState(0.2);
   const [muted, setMuted] = useState(false);
-  const [buffer, setBuffer] = useState(0);
   const [current, setCurrent] = useState(0);
   const [duration, setDuration] = useState(0);
   const [paused, setPaused] = useState(true);
@@ -58,23 +51,6 @@ const PlayTray: React.FC<Props> = ({
       audioElRef.current.onloadedmetadata = () => {
         setDuration(Math.floor(audioElRef.current.duration));
       };
-
-      // audioElRef.current.onprogress = () => {
-      //   const duration = audioElRef.current.duration;
-      //   if (duration > 0) {
-      //     for (let i = 0; i < audioElRef.current.buffered.length; i++) {
-      //       if (
-      //         audio.buffered.start(audio.buffered.length - 1 - i) <
-      //         audio.currentTime
-      //       ) {
-      //         document.getElementById('buffered-amount').style.width = `${
-      //           (audio.buffered.end(audio.buffered.length - 1 - i) * 100) / duration
-      //         }%`;
-      //         break;
-      //       }
-      //     }
-      //   }
-      // };
 
       audioElRef.current.ontimeupdate = () => {
         setCurrent(Math.floor(audioElRef.current.currentTime));
@@ -174,12 +150,12 @@ const PlayTray: React.FC<Props> = ({
             min={0}
             max={duration}
             step={1}
-            value={[current, 20]}
-            // onChange={handleSeek}
-            tooltip={{ formatter: v => dayjs.duration(v!, 'seconds').format('mm:ss') }}
+            value={current}
+            onChange={handleSeek}
             style={{ flex: 1 }}
-            range
-            trackStyle={[{ backgroundColor: '#a4e9c5' }, { backgroundColor: 'green' }]}
+            tooltip={{
+              open: false
+            }}
           />
           <span className='play-total-time'>
             {duration ? dayjs.duration(duration, 'seconds').format('mm:ss') : '00:00'}
@@ -199,19 +175,20 @@ const PlayTray: React.FC<Props> = ({
             }
           </a>
           <Slider
-            defaultValue={40}
             min={0}
             max={1}
             step={0.01}
             value={volume}
             onChange={handleChangeVolume}
-            tooltip={{ open: false }}
+            tooltip={{
+              open: false
+            }}
             style={{ width: 160 }}
           />
         </span>
         <a className='play-mode'><MdRepeatOne size={24}/></a>
         <a className='play-rate'>
-          <Popover content={(
+          {/* <Popover content={(
             <Slider
               step={null}
               dots
@@ -230,7 +207,7 @@ const PlayTray: React.FC<Props> = ({
             />
           )}>
             {`${rate} X`}
-          </Popover>
+          </Popover> */}
         </a>
         <a className='play-resize'><MdExpand size={18}/></a>
       </div>
