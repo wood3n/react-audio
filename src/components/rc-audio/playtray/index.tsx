@@ -13,7 +13,6 @@ import {
   MdVolumeDown,
   MdVolumeUp,
   MdVolumeOff,
-  MdListAlt,
   MdAddCircleOutline,
   MdOutlineFavoriteBorder,
   MdOutlineMusicNote
@@ -170,8 +169,10 @@ const PlayTray: React.FC<Props> = ({
             step={1}
             value={current}
             onChange={handleSeek}
-            tooltip={{ formatter: v => dayjs.duration(v!, 'seconds').format('mm:ss') }}
             style={{ flex: 1 }}
+            tooltip={{
+              open: false
+            }}
           />
           <span className='play-total-time'>
             {duration ? dayjs.duration(duration, 'seconds').format('mm:ss') : '00:00'}
@@ -191,13 +192,14 @@ const PlayTray: React.FC<Props> = ({
             }
           </a>
           <Slider
-            defaultValue={40}
             min={0}
             max={1}
             step={0.01}
             value={volume}
             onChange={handleChangeVolume}
-            tooltip={{ open: false }}
+            tooltip={{
+              open: false
+            }}
             style={{ width: 160 }}
           />
         </span>
