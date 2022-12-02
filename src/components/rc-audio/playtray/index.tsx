@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Slider, Dropdown, Tooltip, Popover, message } from 'antd';
-import { SliderMarks } from 'antd/es/slider';
+import { Slider, Dropdown, Tooltip, Popover, message, Drawer } from 'antd';
 import {
   MdPlayCircleFilled,
   MdPauseCircleFilled,
   MdSkipPrevious,
   MdSkipNext,
   MdRepeatOne,
-  MdRepeat,
+  MdClose,
   MdShuffle,
   MdExpand,
   MdVolumeMute,
@@ -17,11 +16,11 @@ import {
   MdListAlt,
   MdAddCircleOutline,
   MdOutlineFavoriteBorder,
-  MdOutlineFavorite
+  MdOutlineMusicNote
 } from 'react-icons/md';
-import { Howl, Howler } from 'howler';
+import { BsArrowsCollapse } from 'react-icons/bs';
 import dayjs from 'dayjs';
-import { playbackRates, EMPTY_IMG } from '@/constants';
+import Lyric from '../lyric';
 import { Song } from '../types';
 import './index.less';
 
@@ -41,10 +40,10 @@ const PlayTray: React.FC<Props> = ({
   const [rate, setRate] = useState(1);
   const [volume, setVolume] = useState(0.2);
   const [muted, setMuted] = useState(false);
-  const [buffer, setBuffer] = useState(0);
   const [current, setCurrent] = useState(0);
   const [duration, setDuration] = useState(0);
   const [paused, setPaused] = useState(true);
+  const [expanded, setExpanded] = useState(false);
   const audioElRef = useRef<HTMLAudioElement>(new Audio());
 
   useEffect(() => {
@@ -54,29 +53,14 @@ const PlayTray: React.FC<Props> = ({
       audioElRef.current.volume = volume;
       audioElRef.current.preload = 'metadata';
       audioElRef.current.crossOrigin = 'use-credentials';
+      audioElRef.current.playbackRate = rate;
 
       audioElRef.current.onloadedmetadata = () => {
         setDuration(Math.floor(audioElRef.current.duration));
       };
 
-      // audioElRef.current.onprogress = () => {
-      //   const duration = audioElRef.current.duration;
-      //   if (duration > 0) {
-      //     for (let i = 0; i < audioElRef.current.buffered.length; i++) {
-      //       if (
-      //         audio.buffered.start(audio.buffered.length - 1 - i) <
-      //         audio.currentTime
-      //       ) {
-      //         document.getElementById('buffered-amount').style.width = `${
-      //           (audio.buffered.end(audio.buffered.length - 1 - i) * 100) / duration
-      //         }%`;
-      //         break;
-      //       }
-      //     }
-      //   }
-      // };
-
       audioElRef.current.ontimeupdate = () => {
+        console.log(audioElRef.current.currentTime);
         setCurrent(Math.floor(audioElRef.current.currentTime));
       };
 
@@ -127,9 +111,11 @@ const PlayTray: React.FC<Props> = ({
     audioElRef.current.volume = v;
   };
 
-  const handleChangeRate = (v: number) => {
-    setRate(v);
-    audioElRef.current.playbackRate = v;
+  const handleChangeRate = (v: string) => {
+    setRate(Number(v));
+    if (audioElRef.current) {
+      audioElRef.current.playbackRate = Number(v);
+    }
   };
 
   const toggleMuted = () => {
@@ -137,11 +123,19 @@ const PlayTray: React.FC<Props> = ({
     setMuted(!muted);
   };
 
+  const handleResize = () => {
+    setExpanded(!expanded);
+  };
+
   return (
     <div className='playtray'>
       <div className='playtray-left'>
         <div className='song-cover'>
-          <img src={song?.pic || EMPTY_IMG} />
+          {song?.pic ? <img src={song.pic} /> : (
+            <div className='song-cover-fallback'>
+              <MdOutlineMusicNote size={24} color='#fff'/>
+            </div>
+          )}
         </div>
         <div className='song-info'>
           <div className='song-name'>{song?.name}</div>
@@ -174,12 +168,10 @@ const PlayTray: React.FC<Props> = ({
             min={0}
             max={duration}
             step={1}
-            value={[current, 20]}
-            // onChange={handleSeek}
+            value={current}
+            onChange={handleSeek}
             tooltip={{ formatter: v => dayjs.duration(v!, 'seconds').format('mm:ss') }}
             style={{ flex: 1 }}
-            range
-            trackStyle={[{ backgroundColor: '#a4e9c5' }, { backgroundColor: 'green' }]}
           />
           <span className='play-total-time'>
             {duration ? dayjs.duration(duration, 'seconds').format('mm:ss') : '00:00'}
@@ -210,30 +202,44 @@ const PlayTray: React.FC<Props> = ({
           />
         </span>
         <a className='play-mode'><MdRepeatOne size={24}/></a>
-        <a className='play-rate'>
-          <Popover content={(
-            <Slider
-              step={null}
-              dots
-              marks={{
-                0.5: '0.5 X',
-                1: '1 X',
-                1.5: '1.5 X',
-                2: '2 X',
-              } as SliderMarks}
-              min={0.5}
-              max={2}
-              value={rate}
-              onChange={handleChangeRate}
-              tooltip={{ open: false }}
-              style={{ width: 160 }}
-            />
-          )}>
-            {`${rate} X`}
-          </Popover>
+        <Dropdown
+          menu={{
+            items: [
+              { key: '0.5', label: '0.5x' },
+              { key: '1', label: '1x' },
+              { key: '1.5', label: '1.5x' },
+              { key: '2', label: '2x' },
+            ],
+            selectedKeys: [String(rate)],
+            onClick: ({ key }) => handleChangeRate(key)
+          }}
+          placement='top'
+        >
+          <a className='play-rate'>{`${rate}x`}</a>
+        </Dropdown>
+        <a className='play-resize' onClick={handleResize}>
+          {expanded ? <BsArrowsCollapse size={18} /> : <MdExpand size={18} />}
         </a>
-        <a className='play-resize'><MdExpand size={18}/></a>
       </div>
+      <Drawer
+        open={expanded}
+        placement='bottom'
+        height='100vh'
+        headerStyle={{ display: 'none' }}
+        bodyStyle={{
+          padding: 0
+        }}
+        className='rc-audio-drawer'
+      >
+        <div className='drawer-title'>
+          <a onClick={() => setExpanded(false)}><MdClose size={24}/></a>
+        </div>
+        <div className='drawer-content'>
+          <div className='lyric'>
+            <Lyric currentTime={current}/>
+          </div>
+        </div>
+      </Drawer>
     </div>
   );
 };

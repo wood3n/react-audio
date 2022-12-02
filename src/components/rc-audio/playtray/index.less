@@ -1,7 +1,8 @@
 .playtray {
-  padding: 12px;
+  padding: 12px 24px;
   display: flex;
   align-items: center;
+  column-gap: 48px;
   background: #000;
 
   a {
@@ -22,7 +23,7 @@
   }
 
   .playtray-left {
-    flex: 1 1 25%;
+    flex: 1 1 20%;
     display: flex;
     align-items: center;
     column-gap: 12px;
@@ -33,6 +34,16 @@
         height: 48px;
         vertical-align: middle;
       }
+    }
+
+    .song-cover-fallback {
+      width: 48px;
+      height: 48px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 1px solid #f0f0f0;
+      border-radius: 4px;
     }
 
     .song-info {
@@ -63,7 +74,7 @@
   }
 
   .playtray-center {
-    flex: 1 1 50%;
+    flex: 1 1 60%;
 
     .play-action {
       position: relative;
@@ -93,8 +104,7 @@
   }
 
   .playtray-right {
-    padding-right: 24px;
-    flex: 1 1 25%;
+    flex: 1 1 20%;
     display: flex;
     justify-content: flex-end;
     align-items: center;
@@ -109,6 +119,40 @@
       flex: 0 0 25px;
       display: flex;
       align-items: center;
+    }
+
+    .play-rate {
+      display: inline-block;
+      padding: 2px;
+      text-align: center;
+      flex: 0 0 36px;
+    }
+  }
+}
+
+.rc-audio-drawer {
+  .ant-drawer-body {
+    position: relative;
+  }
+
+  .drawer-title {
+    position: fixed;
+    width: 100%;
+    height: 48px;
+    padding: 48px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+
+  .drawer-content {
+    height: calc(100% - 100px);
+
+    .lyric {
+      padding: 48px;
+      height: 100%;
+      display: flex;
+      justify-content: center;
     }
   }
 }
