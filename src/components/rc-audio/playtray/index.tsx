@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Slider, Dropdown, Tooltip, Popover, message, Drawer } from 'antd';
+import { Slider, Dropdown, Drawer } from 'antd';
 import {
   MdPlayCircleFilled,
   MdPauseCircleFilled,
@@ -7,7 +7,6 @@ import {
   MdSkipNext,
   MdRepeatOne,
   MdClose,
-  MdShuffle,
   MdExpand,
   MdVolumeMute,
   MdVolumeDown,
@@ -59,7 +58,6 @@ const PlayTray: React.FC<Props> = ({
       };
 
       audioElRef.current.ontimeupdate = () => {
-        console.log(audioElRef.current.currentTime);
         setCurrent(Math.floor(audioElRef.current.currentTime));
       };
 
@@ -237,9 +235,7 @@ const PlayTray: React.FC<Props> = ({
           <a onClick={() => setExpanded(false)}><MdClose size={24}/></a>
         </div>
         <div className='drawer-content'>
-          <div className='lyric'>
-            <Lyric currentTime={current}/>
-          </div>
+          <Lyric currentTime={current}/>
         </div>
       </Drawer>
     </div>
